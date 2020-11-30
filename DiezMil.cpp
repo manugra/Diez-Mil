@@ -62,12 +62,14 @@ int main() {
 
 	int cr = 1;//Contador de rondas
 	int puntos = 0;//Puntos de la ronda
+	int puntos_ronda = 0;
 	int puntos_totales = 0;
 
 
 
 	int opcion1=1;//Si se lanza de nuevo o se termina la ronda.
 	int menu_final = 1; //Si se juega de nuevo o se cierra el programa en el menu "game_over"
+
 
 	while (menu_final == 1) {
 
@@ -94,7 +96,7 @@ int main() {
 			while (opcion1 == 1) {
 
 
-				std::cout << "TURNO DE " << jugador; std::cout << "      |   RONDA N " << cr << "     " << endl; //POR ACA SE MUESTRA EL PUNTAJE(LINEA 138)
+				std::cout << "TURNO DE " << jugador; std::cout << "      |   RONDA N " << cr << "     " << endl; //POR ACA SE MUESTRA EL PUNTAJE(LINEA 143)
 				std::cout << "-----------------------------------------------------------------------------------------------------------------";
 
 				for (int i = 0; i < 6; i++)//TIRO LOS 6 DADOS
@@ -121,29 +123,42 @@ int main() {
 						break;
 					}
 				}
+					
+
 				std::cout << endl;
 				puntos = jugadas(tirada);
+				puntos_ronda += puntos;
 
 				if (puntos == 0) {
 
-					puntos_totales = 0; //Si no hay combinacion ganadora, el jugador pierde todos los puntos.
+					puntos_totales -= puntos_ronda;
+					puntos_ronda = 0; //Si no hay combinacion ganadora, el jugador pierde todos los puntos.
 					std::cout << "\nJugada nula. Perdiste tus puntos acumulados. Lo siento campeon!";
 				}
-				puntos_totales += puntos;
+				puntos_totales += puntos_ronda;
 				//std::cout << jugadas(tirada) << endl;
 				//std::cout << puntos << endl;
 
-				if (puntos_totales > 10000) puntos_totales -= puntos;
+				if (puntos_totales > 10000) puntos_totales -= puntos_ronda;
 
 				gotoxy(43, 0); std::cout << "|    PUNTAJE TOTAL " << puntos_totales;
 
 				gotoxy(0, 10); std::cout << "La jugada es " << nombres[indiceJugadas(tirada)] << "!  +" << puntos << "!" << endl;
 
+				gotoxy(0, 12); std::cout << "Puntaje de la ronda: "<< puntos_ronda << endl;
+
 				//int opcion1;//Si se lanza de nuevo o se termina la ronda.
+				if (puntos_totales == 10000) {
+					cout << "Felicitaciones! Has Ganado el Diez Mil. Digite el 0 para salir..."; cin >> opcion1;
+				}
 
-				std::cout << "Lanzar de nuevo/Finalizar ronda(1/0): "; std::cin >> opcion1;
+				else {
+					std::cout << "Lanzar de nuevo/Finalizar ronda(1/0): "; std::cin >> opcion1;
+				}
 
-
+				/*if (opcion1 == 1) {
+					cr++;
+				}*/
 				if (opcion1 == 1) puntos_totales -= puntos;
 				std::system("pause");
 				std::system("cls");
@@ -152,7 +167,8 @@ int main() {
 
 			std::system("cls");
 			opcion1 = 1;
-
+			puntos_ronda = 0;
+		
 			cr++;
 
 		}
@@ -160,7 +176,8 @@ int main() {
 
 		game_over(jugador, cr);
 
-		std::cout << "\nJugar de nuevo/Salir del juego(1/0): "; cin >> menu_final;
+
+		std::cout << "\nJugar de nuevo/Salir del juego(1/0): "; std::cin >> menu_final;
 
 		puntos_totales = 0;
 		opcion1 = 1;
@@ -210,14 +227,13 @@ int jugadas(int tirada[6]) {//RECIBE COMO PARAMETRO EL ARRAY CON CADA UNO DE LOS
 
 	/**************Escalera Real**********************/
 																					 
-	int nAnt = tirada[0];															
+	//int nAnt = tirada[0];															
 	bool escalera = true; //Si cambia a false es que no hay escalera				
 																					
-	for (int i = 1; i <=6; i++)														
+	for (int i = 0; i <6; i++)														
 	{																				
-		if (tirada[i] > nAnt && tirada[i] < tirada[i + 1]) nAnt = tirada[i];		
-																					
-		else escalera = false;																			 
+		if (tirada[i] != 1)	escalera = false;
+																																							 
 	}																									 
 																										 
 	if (escalera) combinacion[7] = 1500;																 
@@ -450,7 +466,7 @@ void game_over(string jugador, int rondas) {
 
 	gotoxy(48, 4); std::cout << "FIN DEL JUEGO!";
 
-	gotoxy(4, 7); std::cout << "1." << jugador << " : " << rondas << " RONDAS";
+	gotoxy(4, 7); std::cout << "1." << jugador << " : " << rondas-1 << " RONDAS";
 
 	for (int y = 1; y < 20; y++)
 	{
@@ -494,7 +510,7 @@ void gotoxy(int x, int y) {
 
 
 
-void formaDeDado(int b) {
+void formaDeDado(int b) {//b es en que posicion de la pantalla se imprime el dado.
 	for (int i = 0; i < 10; i++)//Linea Horizontal
 	{
 		gotoxy(i+12*b, 3); printf("%c", 220);
